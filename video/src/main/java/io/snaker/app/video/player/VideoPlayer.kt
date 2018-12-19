@@ -8,4 +8,5 @@ interface VideoPlayer {
     fun resume()
     fun pause()
     fun release()
+    fun hasAudio()
 }

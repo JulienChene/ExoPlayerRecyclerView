@@ -11,7 +11,7 @@ import okhttp3.OkHttpClient
 import java.io.File
 
 /**
- * Data source to provide Caching capabilities to ExoPlayer.
+ * Data source to provide Caching capabilities to ExoPlayerExtensions.
  */
 class CacheDataSourceFactory(
         private val context: Context,
