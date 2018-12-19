@@ -25,8 +25,6 @@ class HingeExoPlayerView : PlayerView, VideoPlayer {
         useController = false
     }
 
-    val
-
     override fun initializeAsync(filePath: String, okHttpClient: OkHttpClient) {
         if (player != null ) return
 
