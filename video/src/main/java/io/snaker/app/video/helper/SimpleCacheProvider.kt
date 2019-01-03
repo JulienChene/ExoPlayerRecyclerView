@@ -1,4 +1,4 @@
-package io.snaker.app.exoplayerprototype
+package io.snaker.app.video.helper
 
 import com.google.android.exoplayer2.upstream.cache.CacheEvictor
 import com.google.android.exoplayer2.upstream.cache.SimpleCache

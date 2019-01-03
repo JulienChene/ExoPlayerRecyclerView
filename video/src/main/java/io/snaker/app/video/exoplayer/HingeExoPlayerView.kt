@@ -2,19 +2,16 @@ package io.snaker.app.video.exoplayer
 
 import android.content.Context
 import android.util.AttributeSet
+import com.google.android.exoplayer2.C
 import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout
 import com.google.android.exoplayer2.ui.PlayerView
 import io.snaker.app.exoplayerprototype.HingeExoPlayer
-import io.snaker.app.exoplayerprototype.VideoPlayer
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.async
-import kotlinx.coroutines.runBlocking
 import okhttp3.OkHttpClient
-import timber.log.Timber
 import io.snaker.app.video.exoplayer.ExoPlayerExtensions.hasAudioTrack
+import io.snaker.app.video.media.PlaybackInfo
 
-class HingeExoPlayerView : PlayerView, VideoPlayer {
+class HingeExoPlayerView : PlayerView {
 
     constructor(context: Context?) : super(context)
     constructor(context: Context?, attrs: AttributeSet?) : super(context, attrs)
@@ -25,47 +22,50 @@ class HingeExoPlayerView : PlayerView, VideoPlayer {
         useController = false
     }
 
-    override fun initializeAsync(filePath: String, okHttpClient: OkHttpClient) {
+    private val playbackInfo = PlaybackInfo()
+
+    fun initializeSync(filePath: String, okHttpClient: OkHttpClient) {
         if (player != null ) return
 
-        val start = System.currentTimeMillis()
-        val deferredPlayer = GlobalScope.async {
-            HingeExoPlayer.Factory(context, okHttpClient, filePath).build().player
-        }
-        Timber.e("Initializing ExoPlayerExtensions took ${System.currentTimeMillis() - start}")
-
-        runBlocking {
-            player = deferredPlayer.await()
-            resume()
-        }
-        Timber.e("Setting ExoPlayerExtensions took ${System.currentTimeMillis() - start}")
-    }
-
-    override fun initializeSync(filePath: String, okHttpClient: OkHttpClient) {
-        if (player != null ) return
-
-        val start = System.currentTimeMillis()
         player = HingeExoPlayer.Factory(context, okHttpClient, filePath).build().player
         resume()
-        Timber.e("Initializing ExoPlayerExtensions took ${System.currentTimeMillis() - start}")
     }
 
-    override fun resume() {
-        (player as? SimpleExoPlayer)?.playWhenReady = true
+    fun resume() {
+        getSimpleExoPlayer()?.playWhenReady = true
     }
 
-    override fun pause() {
-        (player as? SimpleExoPlayer)?.playWhenReady = false
+    fun pause() {
+        getSimpleExoPlayer()?.playWhenReady = false
     }
 
-    override fun release() {
-        val exoPlayer = player as? SimpleExoPlayer ?: return
+    fun release() {
+        val exoPlayer = getSimpleExoPlayer() ?: return
         exoPlayer.stop()
-        exoPlayer.release()
     }
 
-    override fun hasAudio() {
-        val exoPlayer = player as? SimpleExoPlayer ?: return
+    fun hasAudio() {
+        val exoPlayer = getSimpleExoPlayer() ?: return
         exoPlayer.hasAudioTrack()
     }
+
+    fun isPlaying(): Boolean {
+        return getSimpleExoPlayer()?.playWhenReady == true
+    }
+
+    fun getPlaybackInfo(): PlaybackInfo {
+        val player = getSimpleExoPlayer() ?: return PlaybackInfo()
+
+        playbackInfo.resumeWindow = player.currentWindowIndex
+        playbackInfo.resumeVolume = player.volume
+        playbackInfo.resumePosition = when {
+            player.isCurrentWindowSeekable -> Math.max(0, player.currentPosition)
+            else -> C.TIME_UNSET
+        }
+
+        return playbackInfo
+    }
+
+    private fun getSimpleExoPlayer(): SimpleExoPlayer? =
+        player as? SimpleExoPlayer
 }

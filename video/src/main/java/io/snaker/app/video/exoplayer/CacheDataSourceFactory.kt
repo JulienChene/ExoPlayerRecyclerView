@@ -7,6 +7,7 @@ import com.google.android.exoplayer2.upstream.cache.CacheDataSink
 import com.google.android.exoplayer2.upstream.cache.CacheDataSource
 import com.google.android.exoplayer2.upstream.cache.LeastRecentlyUsedCacheEvictor
 import com.google.android.exoplayer2.util.Util
+import io.snaker.app.video.helper.SimpleCacheProvider
 import okhttp3.OkHttpClient
 import java.io.File
 

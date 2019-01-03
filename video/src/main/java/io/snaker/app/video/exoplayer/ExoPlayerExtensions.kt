@@ -8,10 +8,10 @@ object ExoPlayerExtensions {
     fun ExoPlayer.hasAudioTrack(): Boolean {
         val trackGroups = currentTrackGroups
 
-        for (i in 0 until trackGroups.length) {
-            val trackGroup = trackGroups[i]
-            for (j in 0 until trackGroup.length) {
-                val format = trackGroup.getFormat(j)
+        for (trackGroupsPos in 0 until trackGroups.length) {
+            val trackGroup = trackGroups[trackGroupsPos]
+            for (trackGroupPos in 0 until trackGroup.length) {
+                val format = trackGroup.getFormat(trackGroupPos)
                 if (format.channelCount != Format.NO_VALUE) return true
             }
         }
